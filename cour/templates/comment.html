@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Courses-View Course Comments{% endblock %}
+
+{% block heading_title %}<h1>View Course Comments</h1>{% endblock %}
+
+{% block content %}
+<div class="row bg-light pb-3">
+    <h3>{{ this_course.name }}: {{ this_course.description.description }}</h3>
+</div>
+<form action="{% url 'my_comment' course_id=this_course.id %}" method="POST">
+    {% csrf_token %}
+    <div class="row bg-light pb-3">
+        <div class="col-6">
+            <div class="row">
+                <div class="col-2">
+                    <div class="mb-3">
+                        <label for="course_comment" class="form-label">Comment:</label>
+                    </div>
+                </div>
+                <div class="col-10">
+                    <div class="mb-3">
+                        <textarea class="form-control" id="course_comment" name="course_comment" rows="3">{{ request.session.form_data.course_comment }}</textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-4 offset-8 text-end">
+                    <button type="submit" class="btn btn-primary">Add Comment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if all_comments %}   
+        <div class="row bg-light">
+            <h3>Courses</h3>
+        </div>
+        <div class="row pt-3 pb-5 bg-light">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                    <th scope="col">Comment</th>
+                    <th scope="col">Date Added</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for comment in all_comments %}
+                        <tr>
+                        <th scope="row">{{ comment.comment }}</th>
+                        <td>{{ comment.created_at }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                </table>
+        </div>
+    {% else %}
+    <div class="row bg-light pb-5">
+            <h2>Currently there no comments...</h2>
+    </div>
+    {% endif %}
+    <div class="row bg-light pb-5">
+        <a href="{% url 'my_index' %}" class="link-info">Go Back</a>
+    </div>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Courses-Add a student to all bootcamp courses{% endblock %}
+
+{% block heading_title %}<h1>Add a new course</h1>{% endblock %}
+
+{% block content %}
+<script>
+    $( document ).ready(function() {
+        console.log( "ready!" );
+        $(document).on("click", "#delete_btn", function () {
+            var courseId = $(this).attr('data-bs-id');
+
+            var courseName = $(this).attr('data-bs-name');
+
+            var descName = $(this).attr('data-bs-desc');
+
+            $(".modal-body #modal_name").text(courseName);
+            $(".modal-body #modal_desc").text(descName);
+            $(".modal-footer #course_id").val(courseId);
+
+            $('#confirmationModal').modal('show');
+            
+        });
+    });
+    
+</script>
+
+<form id="add_course_form" action="{% url 'my_new' %}" method="POST">
+    {% csrf_token %}
+    <div class="row bg-light pb-3">
+        <div class="col-6">
+            <div class="row">
+                <div class="col-2">
+                    <div class="mb-3">
+                        <label for="course_name" class="form-label">Name:</label>
+                    </div>    
+                </div>
+                <div class="col-10">
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="course_name" name="course_name" value="{{ request.session.form_data.course_name }}">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-2">
+                    <div class="mb-3">
+                        <label for="course_description" class="form-label">Description:</label>
+                    </div>
+                </div>
+                <div class="col-10">
+                    <div class="mb-3">
+                        <textarea class="form-control" id="course_description" name="course_description" rows="3">{{ request.session.form_data.course_description }}</textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-4 offset-8 text-end">
+                    <button type="submit" class="btn btn-primary" id="add_course_btn">Add Course</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Modal -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Delete Confirmation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <h5>Are you sure you want to delete the following course?</h5>
+            <p>Name: <span id="modal_name"></span></p>
+            <p>Description: <span id="modal_desc"></span></p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+            <form id="delete_course_form" action="{% url 'my_delete' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" id="course_id" name="course_id" value="">
+                <button type="submit" id="confirm_delete_btn" class="btn btn-danger">Yes! I want to delete this!</button>
+            </form>
+          </div>
+    </div>
+    </div>
+</div>
+
+{% include "courses.html" %}
+
+<script>
+    // Podrias poner este codigo en otro archivo javascript.. Recuerda usar $(document).ready() si la etiqueta del script se incluye antes de los nodos DOM que le interesn...
+    $('#delete_course_form').submit(function(e){
+      // preventDefault detiene la activación de la accion predeterminada del evento (e)
+      e.preventDefault();
+      console.log("Form submitted but no HTTP request sent to server!");
+      $.ajax({
+        url: "{% url 'my_delete' %}",
+        method: "post",
+        data: $(this).serialize(),
+        success: function(serverResponse){
+                console.log("Received this from server: ", serverResponse)
+                console.log("I should probably put that in the DOM...")
+                $('.courses').html(serverResponse)
+                $('#confirmationModal').modal('hide');
+            }
+        })
+    });
+</script>
+
+{% endblock %}
